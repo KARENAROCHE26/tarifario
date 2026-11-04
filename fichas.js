@@ -7,7 +7,7 @@ window.COTYSSA_FICHAS = {
     "n": "Andamio de marcos",
     "l": "Andamiaje",
     "o": 1,
-    "img": "assets/img/marcos.webp",
+    "img": "marcos.webp",
     "d": "Andamio tubular de marcos para fachadas y trabajos en altura menor. Simple de montar y rápido de operar. Se complementa con tarimas, plataformas, gradas, barandas, tornillos ajustables y rodos.",
     "s": [
       [
@@ -56,13 +56,13 @@ window.COTYSSA_FICHAS = {
       ]
     ],
     "r": "Ficha técnica FT-07 · Prueba de carga de gradas: Informe 524-M, Centro de Investigaciones de Ingeniería, USAC (2015)",
-    "pdf": [["FT-07 · Andamio de marco", "assets/fichas/FT-07-andamio-de-marco.pdf"]]
+    "pdf": [["FT-07 · Andamio de marco", "FT-07-andamio-de-marco.pdf"]]
   },
   "accesorios-marcos": {
     "n": "Accesorios para andamio de marcos",
     "l": "Andamiaje",
     "o": 2,
-    "img": "assets/img/accesorios.webp",
+    "img": "accesorios.webp",
     "d": "Barandas, tornillos ajustables y rodos giratorios para completar y movilizar torres de andamio de marcos.",
     "s": [
       [
@@ -87,13 +87,13 @@ window.COTYSSA_FICHAS = {
       ]
     ],
     "r": "",
-    "pdf": [["FT-07 · Andamio de marco", "assets/fichas/FT-07-andamio-de-marco.pdf"]]
+    "pdf": [["FT-07 · Andamio de marco", "FT-07-andamio-de-marco.pdf"]]
   },
   "puntales": {
     "n": "Puntales metálicos (parales)",
     "l": "Apuntalamiento",
     "o": 3,
-    "img": "assets/img/puntales.webp",
+    "img": "puntales.webp",
     "d": "Puntales telescópicos de acero para apuntalar losas, vigas y encofrados. Se complementan con cabezal fork o simple para viga H20.",
     "s": [
       [
@@ -122,13 +122,13 @@ window.COTYSSA_FICHAS = {
       ]
     ],
     "r": "Capacidades de la ficha FT-04 · Puntales certificados DIN EN 1065, modelo equivalente más cercano",
-    "pdf": [["FT-03 · Puntal liviano", "assets/fichas/FT-03-puntal-liviano.pdf"], ["FT-04 · Puntales certificados EN 1065", "assets/fichas/FT-04-puntal-en1065.pdf"]]
+    "pdf": [["FT-03 · Puntal liviano", "FT-03-puntal-liviano.pdf"], ["FT-04 · Puntales certificados EN 1065", "FT-04-puntal-en1065.pdf"]]
   },
   "multidireccional": {
     "n": "Sistema de andamio multidireccional",
     "l": "Andamiaje",
     "o": 4,
-    "img": "assets/img/multidireccional.webp",
+    "img": "multidireccional.webp",
     "d": "Estructura tubular de acero galvanizado con roseta y cuña, unida con diagonales y con plataformas de trabajo. Giro libre de 360° en cada roseta, adaptable a cualquier geometría. Se arma fijo o móvil, solo con martillo y nivel.",
     "s": [
       [
@@ -161,13 +161,13 @@ window.COTYSSA_FICHAS = {
       ]
     ],
     "r": "Ficha técnica FT-06 · UNE-EN 12810-1:2005",
-    "pdf": [["FT-06 · Andamio multidireccional", "assets/fichas/FT-06-andamio-multidireccional.pdf"]]
+    "pdf": [["FT-06 · Andamio multidireccional", "FT-06-andamio-multidireccional.pdf"]]
   },
   "steel-ply": {
     "n": "Formaleta Steel-Ply",
     "l": "Encofrado",
     "o": 5,
-    "img": "assets/img/steel-ply.jpg",
+    "img": "steel-ply.jpg",
     "d": "Paneles modulares de marco de acero con cara de triplay para muros, cimentaciones y columnas. Se unen con llaves y se completan con esquineros internos y externos.",
     "s": [
       [
