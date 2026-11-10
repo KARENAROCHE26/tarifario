@@ -308,7 +308,7 @@ footer{padding-bottom:110px;font-size:14px}
  .pr .nm b,.pr .pc{font-size:var(--desktop-text)}.pr .nm small,.pr .pc small{font-size:var(--desktop-small)}
  .selected-link{font-size:var(--desktop-text);min-height:54px}.selected-link small{font-size:var(--desktop-small)}
  .qt,.qt.sm{height:54px;grid-template-columns:44px minmax(0,1fr) 44px}.qt input,.qt.sm input{font-size:var(--desktop-text)}.qt button{font-size:28px}
- .sug[open]{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 36px}.sug summary,.sug p{grid-column:1/-1}.sug summary{font-size:var(--desktop-text)}.sug summary span,.sug p{font-size:var(--desktop-small)}
+ .sug[open]{display:block}.sug-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 36px}.sug summary,.sug p{grid-column:1/-1}.sug summary{font-size:var(--desktop-text)}.sug summary span,.sug p{font-size:var(--desktop-small)}
  .suggestion{grid-template-columns:minmax(0,1fr) minmax(160px,25%);gap:20px;padding-block:18px}.suggestion b{font-size:var(--desktop-text)}.suggestion small{font-size:var(--desktop-small)}
  .builder>#datos>.fg{grid-template-columns:repeat(3,minmax(0,1fr));gap:20px 24px}.builder>#datos .more>.fg{grid-template-columns:repeat(4,minmax(0,1fr))}
  .f>span,.more summary,.chk{font-size:var(--desktop-small)}.f input,.f textarea,.f select{font-size:var(--desktop-text);padding:14px 16px;min-height:54px}.chk input{width:24px;height:24px}.yn{gap:20px 36px}
