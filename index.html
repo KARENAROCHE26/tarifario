@@ -60,8 +60,19 @@
           <label class="f"><span>Proyecto</span><input type="text" id="c_proyecto"></label>
           <label class="f"><span>Fecha estimada de inicio</span><input type="text" id="c_inicio" placeholder="Ej. 15 de noviembre"></label>
           <label class="f"><span>NIT para facturar</span><input type="text" id="c_nit"></label></div></details>
-          <div class="f w"><span>Servicios adicionales · se cotizan aparte según equipo, cantidad y ubicación</span>
+          <div class="f w"><span>Servicios adicionales</span>
             <div class="yn"><label class="chk"><input type="checkbox" id="c_flete"> Flete de entrega y retiro</label><label class="chk"><input type="checkbox" id="c_montaje"> Montaje y desmontaje</label></div></div>
+          <div class="f w freight-box" id="fleteFields" hidden>
+            <h3>Flete estimado</h3>
+            <p class="msg">Usamos automáticamente el equipo y las cantidades de su lista. Planta: 49 Calle 24-31, zona 12.</p>
+            <div class="fg">
+              <label class="f"><span>Servicio</span><select id="fleteServicio"><option value="ambos">Entrega y retiro</option><option value="entrega">Solo entrega</option><option value="retiro">Solo retiro</option></select></label>
+              <label class="f"><span>Distancia de ida desde planta (km)</span><input id="fleteKm" type="number" min="0.1" max="2000" step="0.1" inputmode="decimal" placeholder="Ej. 20"></label>
+            </div>
+            <p class="msg">Consulte los kilómetros de la ruta vial en su mapa. Hasta 30 km se conserva la tarifa base; el excedente considera ida y regreso. Cada servicio incluye el regreso del camión a planta. Estimación para jornada ordinaria; condiciones especiales se confirman con un asesor.</p>
+            <div id="fleteResultado" role="status" aria-live="polite"></div>
+            <p class="msg freight-disclaimer">El precio del transporte es estimado y está sujeto a cambios según el costo del combustible y la disponibilidad de nuestra flota interna y de los proveedores de transporte. COTYSSA confirmará el precio final y la programación del servicio.</p>
+          </div>
           <label class="f w"><span>Comentarios</span><textarea id="c_coment" placeholder="Altura a cubrir, metros de fachada, tipo de losa…"></textarea></label>
         </div>
       </section>
@@ -86,7 +97,7 @@
   </div>
 </main>
 
-<footer><div class="wrap"><span>COTYSSA · Encofrado, apuntalamiento y andamiaje desde 1988</span><span>WhatsApp <span data-c="wa-txt"></span> · <span data-c="mail"></span> · PBX <span data-c="pbx"></span> · <span data-c="dir"></span></span></div></footer>
+<footer><div class="wrap"><p class="freight-disclaimer">Transporte: precios estimados sujetos a cambios por combustible y disponibilidad de la flota interna y de proveedores. COTYSSA confirmará el precio final y la programación.</p><span>COTYSSA · Encofrado, apuntalamiento y andamiaje desde 1988</span><span>WhatsApp <span data-c="wa-txt"></span> · <span data-c="mail"></span> · PBX <span data-c="pbx"></span> · <span data-c="dir"></span></span></div></footer>
 
 <div class="bar" id="bar"><div><b id="barTot">Q 0.00</b><span id="barN">Sin equipo</span></div><a class="btn or" href="#datos" id="barGo">Continuar</a></div>
 
@@ -99,6 +110,9 @@
 <script src="logo-pdf.js"></script>
 <!-- Librería para generar el PDF -->
 <script src="jspdf.umd.min.js"></script>
-<script src="tarifario.js"></script>
+<script src="fletes/capacidad.js"></script>
+<script src="fletes/datos.js"></script>
+<script src="fletes/calculo.js"></script>
+<script src="tarifario.js?v=fletes-20261110"></script>
 </body>
 </html>
