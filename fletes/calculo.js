@@ -1,6 +1,6 @@
 (function(root){
 'use strict';
-const DISCLAIMER='El precio del transporte es preliminar y está sujeto a cambios según el costo del combustible y la disponibilidad de nuestra flota interna y de los proveedores de transporte. COTYSSA confirmará el precio final y la programación del servicio.';
+const DISCLAIMER='Los precios son preliminares, pueden variar y están sujetos a disponibilidad.';
 function estimate(quantities,options={},data=root.COTYSSA_FLETES_DATOS,core=root.FletesCore){
  const result={requested:!!options.enabled,complete:false,amount:0,warnings:[],disclaimer:DISCLAIMER};
  if(!result.requested)return result;
