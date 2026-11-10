@@ -32,8 +32,15 @@ function tot(){const L=lines();let s=0,pend=0,nd=0;L.forEach(l=>{if(l.no)nd++;el
 /* Transporte desde la base validada del cotizador de Selvin. */
 let freightCache=null;
 function freight(){const key=JSON.stringify([S.q,S.c.flete,S.c.fleteKm,S.c.fleteServicio,S.c.ubic]);if(freightCache?.key===key)return freightCache.value;const value=window.COTYSSA_FLETE.estimate(S.q,{enabled:S.c.flete,distance:S.c.fleteKm,service:S.c.fleteServicio||'ambos',destination:S.c.ubic,names:Object.fromEntries(P.map(p=>[p.id,p.n]))});freightCache={key,value};return value}
-function freightText(f){if(!f.requested)return 'Flete no solicitado.';return (f.complete?'Flete estimado':'Flete por confirmar')+(f.amount?' · '+fmt(f.amount)+' con IVA'+(!f.complete?' (estimación parcial, no sumada al total)':''):'')+(f.trips?' · '+f.trips+' viaje(s) por servicio · '+(f.service==='ambos'?'entrega y retiro':f.service)+' · '+f.distance+' km de ida':'')+(f.warnings.length?' · '+f.warnings.join(' '):'')}
-function renderFreight(){const f=freight();$('#fleteFields').hidden=!S.c.flete;$('#fleteKm').value=S.c.fleteKm??'';$('#fleteServicio').value=S.c.fleteServicio||'ambos';$('#fleteResultado').innerHTML=f.requested?(f.amount?'<p class="freight-price">'+esc(fmt(f.amount))+' con IVA'+(!f.complete?' · parcial':'')+'</p>':'')+'<p class="msg">'+esc(f.trips?f.trips+' viaje(s) por servicio. '+(f.service==='ambos'?'Entrega y retiro se cotizan como dos servicios.':'Cada viaje incluye regreso a planta.'):'Agregue equipo, ubicación y distancia para estimar el flete.')+'</p>'+(f.warnings.length?'<ul>'+f.warnings.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':''):''}
+function freightText(f){if(!f.requested)return 'Flete no solicitado.';return (f.complete?'Flete preliminar':'Flete por confirmar')+(f.amount?' · '+fmt(f.amount)+' con IVA'+(!f.complete?' (estimación parcial, no sumada al total)':''):'')+(f.trips?' · '+(f.trips*f.services)+' fletes en total · '+f.trips+' por servicio · '+(f.service==='ambos'?'entrega y retiro':f.service)+' · '+f.distance+' km de ida':'')+(f.warnings.length?' · '+f.warnings.join(' '):'')}
+function freightRows(f){
+ if(!f.requested)return [];
+ if(f.items?.length)return f.items.map(item=>({name:item.label+' — precio preliminar',quantity:item.quantity,unit:item.unitCents/100,total:item.totalCents/100,detail:'Camión de '+item.tons+' t'+(!f.complete?' · Estimación parcial; no incluida en el total':'')}));
+ const services=(S.c.fleteServicio||'ambos')==='ambos'?['entrega','retiro']:[S.c.fleteServicio];
+ return services.map(service=>({name:'Flete de '+service+' — precio preliminar',quantity:null,unit:null,total:null,detail:'Cantidad y precio por confirmar'}));
+}
+function freightRowsHtml(f){return freightRows(f).map(row=>'<div class="si freight-line"><div><b>'+esc(row.name)+'</b><small>'+esc(row.detail)+'</small><small>'+(row.unit==null?'Precio por confirmar':fmt(row.unit)+' c/u · IVA incluido')+'</small></div><span>'+(row.quantity==null?'Por confirmar':row.quantity+' '+(row.quantity===1?'flete':'fletes'))+'</span><span>'+ (row.total==null?'Consultar':fmt(row.total))+'</span></div>').join('')}
+function renderFreight(){const f=freight();$('#fleteFields').hidden=!S.c.flete;$('#fleteKm').value=S.c.fleteKm??'';$('#fleteServicio').value=S.c.fleteServicio||'ambos';$('#fleteResultado').innerHTML=f.requested?(f.amount?'<p class="freight-price">'+esc(fmt(f.amount))+' con IVA'+(!f.complete?' · parcial':'')+'</p>':'')+'<p class="msg">'+esc(f.trips?(f.trips*f.services)+' fletes en total · '+f.trips+' por servicio. '+(f.service==='ambos'?'Entrega y retiro se cotizan como dos servicios.':'Cada viaje incluye regreso a planta.'):'Agregue equipo, ubicación y distancia para estimar el flete.')+'</p>'+(f.warnings.length?'<ul>'+f.warnings.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':''):''}
 $('#fleteKm').addEventListener('change',e=>{S.c.fleteKm=e.target.value;all()});
 $('#fleteServicio').addEventListener('change',e=>{S.c.fleteServicio=e.target.value;all()});
 
@@ -81,6 +88,7 @@ function renderSum(){
     const miss=[...sg].filter(id=>BY[id]&&!S.q[id]);
     if(miss.length)h+=`<div class="sug"><p>Complementos sugeridos · indique la cantidad que necesita</p>${miss.map(id=>{const u=price(BY[id]);return `<div class="si sg" data-id="${id}"><div><b>${esc(BY[id].n)}</b><small>${!ok(BY[id])?solo(BY[id]):u==null?"Precio por confirmar":fmt(u)+" c/u"}</small></div>${qt(id,0)}<span></span></div>`}).join("")}</div>`;
     $("#sumItems").innerHTML=h}
+  $("#sumItems").insertAdjacentHTML("beforeend",freightRowsHtml(t.flete));
   $("#sumTot").innerHTML=`<div class="big"><span>${t.flete.complete?"Equipo + flete":"Total referencial de equipo"}</span><b>${fmt(t.s)}</b></div><div><span>IVA incluido (12%)</span><span>${fmt(t.iva)}</span></div>${t.nd?`<div class="wn"><span>${t.nd} ${t.nd>1?"piezas no se rentan":"pieza no se renta"} por ${PER[S.per]}. Cambie el período.</span><span></span></div>`:""}${t.pend?`<div class="wn"><span>${t.pend} ${t.pend>1?"piezas":"pieza"} por confirmar precio</span><span></span></div>`:""}${t.flete.requested?`<div><span>Renta de equipo</span><span>${fmt(t.rental)}</span></div><span class="nt">${esc(freightText(t.flete))}</span>`:""}<span class="nt">Montaje y desmontaje se cotizan aparte. Transporte sujeto a confirmación.</span>`;
   $("#barTot").textContent=fmt(t.s);
   const pz=t.L.reduce((a,l)=>a+l.c,0);$("#barN").textContent=t.L.length?`${pz} ${pz===1?"pieza":"piezas"} · ${perTxt()}`:"Sin equipo";
@@ -102,6 +110,7 @@ function message(){
   L.push("*Solicitud de cotización · COTYSSA*");
   L.push("Período: "+perTxt());L.push("");
   t.L.forEach(l=>L.push(`• ${l.c} × ${l.p.n}${l.p.c?" ("+l.p.c+")":""} — ${l.no?"no se renta por "+PER[S.per]+" ("+solo(l.p).toLowerCase()+")":l.t==null?"precio por confirmar":fmt(l.t)}`));
+  freightRows(t.flete).forEach(row=>L.push(`• ${row.quantity??"Por confirmar"} × ${row.name} — ${row.unit==null?"precio por confirmar":fmt(row.unit)+" c/u · "+fmt(row.total)+" total (IVA incluido)"}${!t.flete.complete?" · no incluido en el total":""}`));
   L.push("");L.push("*Total referencial: "+fmt(t.s)+"* (IVA incluido)");if(t.flete.requested){L.push("Renta de equipo: "+fmt(t.rental));L.push(freightText(t.flete));L.push(window.COTYSSA_FLETE.disclaimer)}
   if(t.nd)L.push(t.nd+" pieza(s) no se rentan por "+PER[S.per]+".");
   if(t.pend)L.push(t.pend+" pieza(s) con precio por confirmar.");
@@ -176,6 +185,18 @@ function buildPdf(){
     doc.setFont("helvetica","bold");if(l.t==null)col(or7);doc.text(l.no?"No disponible":l.t==null?"Por confirmar":fmt(l.t),X.t,y,{align:"right"});
     if(dt.length){doc.setFont("helvetica","normal");doc.setFontSize(7.6);col(mute);doc.text(dt,X.n,y+nm.length*4.2-.6)}
     y+=h-1.5;doc.setDrawColor(...line);doc.setLineWidth(.2);doc.line(M,y,R,y);y+=5});
+  // Transporte: partidas con cantidad, servicio, precio unitario e importe con IVA.
+  freightRows(t.flete).forEach(row=>{
+    const nm=doc.splitTextToSize(L1(row.name),104),dt=doc.splitTextToSize(L1(row.detail),104);
+    const h=nm.length*4.2+dt.length*3.5+3;
+    if(y+h>268){doc.addPage();y=head(false)+9;th()}
+    doc.setFont("helvetica","bold");doc.setFontSize(9.3);col(ink);doc.text(nm,X.n,y);
+    doc.setFont("helvetica","normal");doc.text(row.quantity==null?"Pend.":String(row.quantity),X.c,y,{align:"right"});
+    doc.text(row.unit==null?"Consultar":fmt(row.unit),X.p,y,{align:"right"});
+    doc.setFont("helvetica","bold");doc.text(row.total==null?"Por confirmar":fmt(row.total),X.t,y,{align:"right"});
+    doc.setFont("helvetica","normal");doc.setFontSize(7.6);col(mute);doc.text(dt,X.n,y+nm.length*4.2-.6);
+    y+=h-1.5;doc.setDrawColor(...line);doc.setLineWidth(.2);doc.line(M,y,R,y);y+=5;
+  });
   // totales
   if(y+40>278){doc.addPage();y=head(false)+12}
   y+=2;const tx=118;

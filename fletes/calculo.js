@@ -1,6 +1,6 @@
 (function(root){
 'use strict';
-const DISCLAIMER='El precio del transporte es estimado y está sujeto a cambios según el costo del combustible y la disponibilidad de nuestra flota interna y de los proveedores de transporte. COTYSSA confirmará el precio final y la programación del servicio.';
+const DISCLAIMER='El precio del transporte es preliminar y está sujeto a cambios según el costo del combustible y la disponibilidad de nuestra flota interna y de los proveedores de transporte. COTYSSA confirmará el precio final y la programación del servicio.';
 function estimate(quantities,options={},data=root.COTYSSA_FLETES_DATOS,core=root.FletesCore){
  const result={requested:!!options.enabled,complete:false,amount:0,warnings:[],disclaimer:DISCLAIMER};
  if(!result.requested)return result;
@@ -27,11 +27,25 @@ function estimate(quantities,options={},data=root.COTYSSA_FLETES_DATOS,core=root
  const multiplier=options.service==='ambos'?2:1,extraKm=Math.round(Math.max(0,distance-data.baseRadius)*200)/100;
  const lines=plan.trips.map(t=>{const tons=t.truck.cap/1000,rate=data.rates[tons];const beforeIVA=rate.base+Math.ceil(Math.round(extraKm*(rate.extraKm*.8)*100)/.8);return {tons,netCents:beforeIVA};});
  const netCents=lines.reduce((sum,l)=>sum+l.netCents,0)*multiplier;
- result.trips=plan.trips.length;result.services=multiplier;result.kg=prepared.totalKg;result.netCents=netCents;result.amount=Math.round(netCents*1.12)/100;result.lines=lines;result.distance=distance;result.service=options.service;
+ result.trips=plan.trips.length;result.services=multiplier;result.kg=prepared.totalKg;result.netCents=netCents;result.lines=lines;result.distance=distance;result.service=options.service;result.items=lineItems(result);result.amount=result.items.reduce((sum,item)=>sum+item.totalCents,0)/100;
  result.complete=lines.length>0&&result.warnings.length===0;
  }catch{result.warnings.push('No se pudo estimar el acomodo; el flete queda por confirmar.');}
  return result;
 }
-root.COTYSSA_FLETE={estimate,disclaimer:DISCLAIMER};
+function lineItems(result){
+ const services=result.service==='ambos'?['entrega','retiro']:[result.service];
+ const items=[];
+ for(const service of services){
+  const groups=new Map();
+  for(const line of result.lines||[]){
+   const unitCents=Math.round(line.netCents*1.12),key=line.tons+':'+unitCents;
+   const item=groups.get(key)||{service,label:'Flete de '+service,tons:line.tons,quantity:0,unitCents,totalCents:0};
+   item.quantity++;item.totalCents=item.quantity*unitCents;groups.set(key,item);
+  }
+  items.push(...groups.values());
+ }
+ return items;
+}
+root.COTYSSA_FLETE={estimate,lineItems,disclaimer:DISCLAIMER};
 if(typeof module!=='undefined')module.exports=root.COTYSSA_FLETE;
 })(typeof window!=='undefined'?window:globalThis);
