@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@500;600&display=swap">
-<link rel="stylesheet" href="tarifario.css">
+<link rel="stylesheet" href="tarifario.css?v=responsive-20261110">
 </head>
 <body>
 <header class="top"><div class="wrap">
@@ -24,12 +24,12 @@
     <div class="eb">Tarifario de renta</div>
     <h1>Arme su cotización de equipo</h1>
     <p>Elija el período, agregue andamios, puntales o formaleta y envíe su lista a Servicio al cliente por WhatsApp o correo.</p>
-    <div class="aviso"><b>Cotización referencial.</b> Los precios son una referencia e incluyen IVA. Todo está sujeto a la disponibilidad del equipo y a las fechas de entrega. Un asesor de COTYSSA confirmará cantidades, fechas, flete y montaje, y le enviará la cotización final.</div>
-    <div class="mk"><span>NIV +00</span><i></i></div>
+    <div class="aviso"><b>Precios con IVA incluido.</b> Un asesor de COTYSSA confirmará cantidades, fechas y servicios antes de emitir la cotización final.</div>
+    <nav class="flow" aria-label="Pasos de la cotización"><a href="#s1">01 · Período</a><a href="#s2">02 · Equipo</a><a href="#datos">03 · Datos y servicios</a><a href="#resumen">04 · Revisar cotización</a></nav>
   </div></section>
 
   <div class="wrap grid">
-    <div>
+    <div class="builder">
       <section class="step" aria-labelledby="s1">
         <div class="sh"><b>01</b><h2 id="s1">Período de renta</h2></div>
         <div class="seg" id="perSeg" role="group" aria-label="Período">
@@ -46,10 +46,11 @@
         <div id="sysInfo"></div>
         <input class="srch" type="search" id="q" placeholder="Buscar en todo el catálogo: larguero, puntal, plataforma…" aria-label="Buscar equipo">
         <div class="list" id="list"></div>
+        <div id="suggestions"></div>
       </section>
 
       <section class="step" aria-labelledby="s3" id="datos">
-        <div class="sh"><b>03</b><h2 id="s3">Sus datos</h2></div>
+        <div class="sh"><b>03</b><h2 id="s3">Datos y servicios</h2></div>
         <div class="fg">
           <label class="f"><span>Nombre <i>*</i></span><input type="text" id="c_nombre" autocomplete="name"></label>
           <label class="f"><span>Empresa</span><input type="text" id="c_empresa" autocomplete="organization"></label>
@@ -61,7 +62,7 @@
           <label class="f"><span>Fecha estimada de inicio</span><input type="text" id="c_inicio" placeholder="Ej. 15 de noviembre"></label>
           <label class="f"><span>NIT para facturar</span><input type="text" id="c_nit"></label></div></details>
           <div class="f w"><span>Servicios adicionales</span>
-            <div class="yn"><label class="chk"><input type="checkbox" id="c_flete"> Flete de entrega y retiro</label><label class="chk"><input type="checkbox" id="c_montaje"> Montaje y desmontaje</label></div></div>
+            <div class="yn"><label class="chk"><input type="checkbox" id="c_flete"> Incluir transporte</label><label class="chk"><input type="checkbox" id="c_montaje"> Montaje y desmontaje</label></div></div>
           <div class="f w freight-box" id="fleteFields" hidden>
             <h3>Flete preliminar</h3>
             <p class="msg">Usamos automáticamente el equipo y las cantidades de su lista. Planta: 49 Calle 24-31, zona 12.</p>
@@ -71,7 +72,7 @@
             </div>
             <p class="msg">Consulte los kilómetros de la ruta vial en su mapa. Hasta 30 km se conserva la tarifa base; el excedente considera ida y regreso. Cada servicio incluye el regreso del camión a planta. Estimación para jornada ordinaria; condiciones especiales se confirman con un asesor.</p>
             <div id="fleteResultado" role="status" aria-live="polite"></div>
-            <p class="msg freight-disclaimer">Los precios son preliminares, pueden variar y están sujetos a disponibilidad.</p>
+            
           </div>
           <label class="f w"><span>Comentarios</span><textarea id="c_coment" placeholder="Altura a cubrir, metros de fachada, tipo de losa…"></textarea></label>
         </div>
@@ -79,7 +80,8 @@
     </div>
 
     <aside class="sum" id="resumen" aria-labelledby="sumT">
-      <div class="hd"><h2 id="sumT">Su cotización</h2><span id="perTxt"></span></div>
+      <div class="hd"><div><span class="eyebrow">04 · Revise y envíe</span><h2 id="sumT">Su cotización</h2></div><span id="perTxt"></span></div>
+      <div class="quote-cols" aria-hidden="true"><span>Equipo / servicio</span><span>Cantidad</span><span>Precio unitario</span><span>Importe</span></div>
       <div class="its" id="sumItems"></div>
       <div class="tt" id="sumTot"></div>
       <div class="acts">
@@ -97,9 +99,9 @@
   </div>
 </main>
 
-<footer><div class="wrap"><p class="freight-disclaimer">Los precios son preliminares, pueden variar y están sujetos a disponibilidad.</p><span>COTYSSA · Encofrado, apuntalamiento y andamiaje desde 1988</span><span>WhatsApp <span data-c="wa-txt"></span> · <span data-c="mail"></span> · PBX <span data-c="pbx"></span> · <span data-c="dir"></span></span></div></footer>
+<footer><div class="wrap"><span>COTYSSA · Encofrado, apuntalamiento y andamiaje desde 1988</span><span>WhatsApp <span data-c="wa-txt"></span> · <span data-c="mail"></span> · PBX <span data-c="pbx"></span> · <span data-c="dir"></span></span></div></footer>
 
-<div class="bar" id="bar"><div><b id="barTot">Q 0.00</b><span id="barN">Sin equipo</span></div><a class="btn or" href="#datos" id="barGo">Continuar</a></div>
+<div class="bar" id="bar"><div><span id="barN">Sin equipo</span></div><a class="btn or" href="#datos" id="barGo">Continuar</a></div>
 
 <dialog id="dlg" aria-labelledby="dlgT"><button class="dclose" type="button" id="dlgX" aria-label="Cerrar">×</button><div id="dlgB"></div></dialog>
 
@@ -113,6 +115,6 @@
 <script src="fletes/capacidad.js"></script>
 <script src="fletes/datos.js"></script>
 <script src="fletes/calculo.js?v=detalle-fletes-preliminar-20261110"></script>
-<script src="tarifario.js?v=fletes-en-total-20261110"></script>
+<script src="tarifario.js?v=responsive-20261110"></script>
 </body>
 </html>

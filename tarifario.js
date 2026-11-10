@@ -33,15 +33,15 @@ function tot(){const L=lines();let s=0,pend=0,nd=0;L.forEach(l=>{if(l.no)nd++;el
 let freightCache=null;
 function freight(){const key=JSON.stringify([S.q,S.c.flete,S.c.fleteKm,S.c.fleteServicio,S.c.ubic]);if(freightCache?.key===key)return freightCache.value;const value=window.COTYSSA_FLETE.estimate(S.q,{enabled:S.c.flete,distance:S.c.fleteKm,service:S.c.fleteServicio||'ambos',destination:S.c.ubic,names:Object.fromEntries(P.map(p=>[p.id,p.n]))});freightCache={key,value};return value}
 const freightPriced=f=>f.requested&&Number.isFinite(f.amount)&&f.amount>0;
-function freightText(f){if(!f.requested)return 'Flete no solicitado.';return (freightPriced(f)?'Flete preliminar':'Flete por confirmar')+(f.amount?' · '+fmt(f.amount)+' con IVA'+(!f.complete?' (estimación parcial incluida en el total)':''):'')+(f.trips?' · '+(f.trips*f.services)+' fletes en total · '+f.trips+' por servicio · '+(f.service==='ambos'?'entrega y retiro':f.service)+' · '+f.distance+' km de ida':'')+(f.warnings.length?' · '+f.warnings.join(' '):'')}
 function freightRows(f){
  if(!f.requested)return [];
- if(f.items?.length)return f.items.map(item=>({name:item.label+' — precio preliminar',quantity:item.quantity,unit:item.unitCents/100,total:item.totalCents/100,detail:'Camión de '+item.tons+' t'+(!f.complete?' · Estimación parcial incluida como precio preliminar':'')}));
+ if(f.items?.length)return f.items.map(item=>({name:item.label,quantity:item.quantity,unit:item.unitCents/100,total:item.totalCents/100,detail:'Camión de '+item.tons+' t'}));
  const services=(S.c.fleteServicio||'ambos')==='ambos'?['entrega','retiro']:[S.c.fleteServicio];
- return services.map(service=>({name:'Flete de '+service+' — precio preliminar',quantity:null,unit:null,total:null,detail:'Cantidad y precio por confirmar'}));
+ return services.map(service=>({name:'Flete de '+service,quantity:null,unit:null,total:null,detail:'Cantidad y precio por confirmar'}));
 }
-function freightRowsHtml(f){return freightRows(f).map(row=>'<div class="si freight-line"><div><b>'+esc(row.name)+'</b><small>'+esc(row.detail)+'</small><small>'+(row.unit==null?'Precio por confirmar':fmt(row.unit)+' c/u · IVA incluido')+'</small></div><span>'+(row.quantity==null?'Por confirmar':row.quantity+' '+(row.quantity===1?'flete':'fletes'))+'</span><span>'+ (row.total==null?'Consultar':fmt(row.total))+'</span></div>').join('')}
-function renderFreight(){const f=freight();$('#fleteFields').hidden=!S.c.flete;$('#fleteKm').value=S.c.fleteKm??'';$('#fleteServicio').value=S.c.fleteServicio||'ambos';$('#fleteResultado').innerHTML=f.requested?(f.amount?'<p class="freight-price">'+esc(fmt(f.amount))+' con IVA'+(!f.complete?' · parcial':'')+'</p>':'')+'<p class="msg">'+esc(f.trips?(f.trips*f.services)+' fletes en total · '+f.trips+' por servicio. '+(f.service==='ambos'?'Entrega y retiro se cotizan como dos servicios.':'Cada viaje incluye regreso a planta.'):'Agregue equipo, ubicación y distancia para estimar el flete.')+'</p>'+(f.warnings.length?'<ul>'+f.warnings.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':''):''}
+function freightRowsHtml(f){return freightRows(f).map(row=>'<div class="si freight-line"><div><b>'+esc(row.name)+'</b><small>'+esc(row.detail)+'</small></div><span class="line-qty" data-label="Cantidad">'+(row.quantity==null?'Por confirmar':row.quantity+' '+(row.quantity===1?'flete':'fletes'))+'</span><span class="unit" data-label="Precio unitario">'+(row.unit==null?'Consultar':fmt(row.unit))+'</span><span class="line-total" data-label="Importe">'+(row.total==null?'Consultar':fmt(row.total))+'</span></div>').join('')}
+function freightNotes(f){return [f.distance?'Ruta: '+f.distance+' km de ida.':'',...f.warnings].filter(Boolean).join(' ')}
+function renderFreight(){const f=freight();$('#fleteFields').hidden=!S.c.flete;$('#fleteKm').value=S.c.fleteKm??'';$('#fleteServicio').value=S.c.fleteServicio||'ambos';$('#fleteResultado').innerHTML='<p class="msg">'+esc(f.requested&&f.items?.length?'El desglose de entrega y retiro está en su cotización.':'Complete la ubicación, distancia y equipo para estimar el transporte.')+'</p>'}
 $('#fleteKm').addEventListener('change',e=>{S.c.fleteKm=e.target.value;all()});
 $('#fleteServicio').addEventListener('change',e=>{S.c.fleteServicio=e.target.value;all()});
 
@@ -69,10 +69,10 @@ const suggested=()=>{const s=new Set();P.forEach(p=>{if(S.q[p.id]>0)(p.x||[]).fo
 function renderList(){
   const q=(S.search||"").toLowerCase();const sg=suggested();
   const ps=q?P.filter(p=>(p.n+" "+p.d+" "+p.c+" "+(F[p.f]?.n||"")).toLowerCase().includes(q)):P.filter(p=>p.f===S.sys);
-  $("#list").innerHTML=ps.length?ps.map(p=>{const u=price(p);const n=S.q[p.id]||0;
+  $("#list").innerHTML=ps.length?ps.filter(p=>!sg.has(p.id)||S.q[p.id]).map(p=>{const u=price(p);const n=S.q[p.id]||0;
     return `<div class="pr${n>0?" on":""}" data-id="${p.id}"><div class="nm"><b>${esc(p.n)}${sg.has(p.id)&&!n?'<span class="tag">Sugerido</span>':""}</b><small>${esc([p.d,q?F[p.f]?.n:""].filter(Boolean).join(" · "))}</small></div>
     <div class="pc${u==null?" cq":""}">${!ok(p)?solo(p):u==null?"Consultar":fmt(u)}<small>${!ok(p)?"no se renta por "+PER[S.per]:u==null?"precio con asesor":"por pieza · "+PER[S.per]}</small></div>
-    <div class="qt"><button type="button" data-d="-1" aria-label="Quitar uno">−</button><input type="number" min="0" step="1" inputmode="numeric" value="${n}" aria-label="Cantidad de ${esc(p.n)}"><button type="button" data-d="1" aria-label="Agregar uno">+</button></div></div>`}).join(""):'<p class="msg" style="padding:16px 0">No encontramos equipo con ese nombre. Escríbanos y lo revisamos.</p>';
+    ${n?`<a class="selected-link" href="#resumen">Agregado ✓<small>Editar en cotización</small></a>`:`<div class="qt"><button type="button" data-d="-1" aria-label="Quitar uno">−</button><input type="number" min="0" step="1" inputmode="numeric" value="0" aria-label="Cantidad de ${esc(p.n)}"><button type="button" data-d="1" aria-label="Agregar uno">+</button></div>`}</div>`}).join(""):'<p class="msg" style="padding:16px 0">No encontramos equipo con ese nombre. Escríbanos y lo revisamos.</p>';
 }
 function setQ(id,n){n=Math.max(0,Math.floor(+n||0));if(n)S.q[id]=n;else delete S.q[id];if(n)fixPer(BY[id])}
 $("#list").addEventListener("click",e=>{const b=e.target.closest("[data-d]");if(!b)return;const id=b.closest(".pr").dataset.id;setQ(id,(S.q[id]||0)+ +b.dataset.d);all(true)});
@@ -81,24 +81,21 @@ $("#list").addEventListener("change",e=>{const i=e.target.closest(".qt input");i
 /* resumen */
 function renderSum(){
   const t=tot();renderFreight();$("#perTxt").textContent=perTxt();
-  const sg=suggested();
-  if(!t.L.length){$("#sumItems").innerHTML='<div class="emp"><b>Su lista está vacía.</b><br>Agregue equipo con los botones + y aquí verá el total referencial.</div>'}
-  else{
-    const qt=(id,n)=>`<div class="qt sm"><button type="button" data-sd="-1" aria-label="Quitar uno">−</button><input type="number" min="0" step="1" inputmode="numeric" value="${n}" aria-label="Cantidad de ${esc(BY[id].n)}"><button type="button" data-sd="1" aria-label="Agregar uno">+</button></div>`;
-    let h=t.L.map(l=>`<div class="si" data-id="${l.p.id}"><div><b>${esc(l.p.n)}</b><small>${l.no?solo(l.p):l.u==null?"Precio por confirmar":fmt(l.u)+" c/u"}${np()>1?" · "+np()+" períodos":""}</small></div>${qt(l.p.id,l.c)}<span${l.t==null?' class="cq"':""}>${l.no?"No disponible":l.t==null?"Consultar":fmt(l.t)}</span></div>`).join("");
-    const miss=[...sg].filter(id=>BY[id]&&!S.q[id]);
-    if(miss.length)h+=`<div class="sug"><p>Complementos sugeridos · indique la cantidad que necesita</p>${miss.map(id=>{const u=price(BY[id]);return `<div class="si sg" data-id="${id}"><div><b>${esc(BY[id].n)}</b><small>${!ok(BY[id])?solo(BY[id]):u==null?"Precio por confirmar":fmt(u)+" c/u"}</small></div>${qt(id,0)}<span></span></div>`}).join("")}</div>`;
-    $("#sumItems").innerHTML=h}
-  $("#sumItems").insertAdjacentHTML("beforeend",freightRowsHtml(t.flete));
-  $("#sumTot").innerHTML=`<div class="big"><span>${freightPriced(t.flete)?"Equipo + flete":"Total referencial de equipo"}</span><b>${fmt(t.s)}</b></div><div><span>IVA incluido (12%)</span><span>${fmt(t.iva)}</span></div>${t.nd?`<div class="wn"><span>${t.nd} ${t.nd>1?"piezas no se rentan":"pieza no se renta"} por ${PER[S.per]}. Cambie el período.</span><span></span></div>`:""}${t.pend?`<div class="wn"><span>${t.pend} ${t.pend>1?"piezas":"pieza"} por confirmar precio</span><span></span></div>`:""}${t.flete.requested?`<div><span>Renta de equipo</span><span>${fmt(t.rental)}</span></div><span class="nt">${esc(freightText(t.flete))}</span>`:""}<span class="nt">Montaje y desmontaje se cotizan aparte. Transporte sujeto a confirmación.</span>`;
-  $("#barTot").textContent=fmt(t.s);
-  const pz=t.L.reduce((a,l)=>a+l.c,0);$("#barN").textContent=t.L.length?`${pz} ${pz===1?"pieza":"piezas"} · ${perTxt()}`:"Sin equipo";
+  const qt=(id,n)=>`<div class="qt sm"><button type="button" data-sd="-1" aria-label="Quitar uno">−</button><input type="number" min="0" step="1" inputmode="numeric" value="${n}" aria-label="Cantidad de ${esc(BY[id].n)}"><button type="button" data-sd="1" aria-label="Agregar uno">+</button></div>`;
+  $('#sumItems').innerHTML=t.L.length?t.L.map(l=>`<div class="si" data-id="${l.p.id}"><div><b>${esc(l.p.n)}</b>${l.p.d?`<small>${esc(l.p.d)}</small>`:''}</div>${qt(l.p.id,l.c)}<span class="unit" data-label="Precio unitario">${l.no?solo(l.p):l.u==null?'Consultar':fmt(l.u)}${np()>1?`<small>× ${np()} períodos</small>`:''}</span><span class="line-total${l.t==null?' cq':''}" data-label="Importe">${l.no?'No disponible':l.t==null?'Consultar':fmt(l.t)}</span></div>`).join(''):'<div class="emp"><b>Su lista está vacía.</b><br>Agregue equipo del catálogo para comenzar.</div>';
+  const miss=[...suggested()].filter(id=>BY[id]&&!S.q[id]);
+  $('#suggestions').innerHTML=miss.length?`<details class="sug" open><summary>Complemente su equipo <span>${miss.length} opciones</span></summary><p>Agregue solo los accesorios que necesita.</p>${miss.map(id=>{const p=BY[id],u=price(p);return `<div class="suggestion" data-id="${id}"><div><b>${esc(p.n)}</b><small>${!ok(p)?solo(p):u==null?'Consultar':fmt(u)+' por pieza'}</small></div>${qt(id,0)}</div>`}).join('')}</details>`:'';
+  $('#sumItems').insertAdjacentHTML('beforeend',freightRowsHtml(t.flete));
+  $('#sumTot').innerHTML=`<div class="big"><span>Total preliminar</span><b>${fmt(t.s)}</b></div><div><span>IVA incluido (12%)</span><span>${fmt(t.iva)}</span></div>${t.nd?`<p class="wn">${t.nd} piezas no disponibles para ${PER[S.per]}.</p>`:''}${t.pend?`<p class="wn">${t.pend} piezas con precio por confirmar.</p>`:''}${t.flete.requested?`<p class="nt freight-note">${esc(freightNotes(t.flete))}</p>`:''}<p class="nt freight-disclaimer">${esc(window.COTYSSA_FLETE.disclaimer)}</p><p class="nt">Montaje y desmontaje se cotizan aparte.</p>`;
+  $('#barN').textContent=t.L.length?`${t.L.length} ${t.L.length===1?'tipo de equipo':'tipos de equipo'} · ${perTxt()}`:'Agregue equipo para comenzar';
   updateLinks();updateBar();
 }
-function updateBar(){const g=$("#barGo");const n=tot().L.length;const ready=n&&(S.c.nombre||"").trim()&&(S.c.tel||"").trim();
-  g.textContent=ready?"Enviar cotización":n?"Continuar":"Ver lista";g.href=ready?"#resumen":n?"#datos":"#resumen"}
-$("#sumItems").addEventListener("click",e=>{const b=e.target.closest("[data-sd]");if(!b)return;const id=b.closest("[data-id]").dataset.id;setQ(id,(S.q[id]||0)+ +b.dataset.sd);all(true)});
-$("#sumItems").addEventListener("change",e=>{const i=e.target.closest(".qt input");if(!i)return;setQ(i.closest("[data-id]").dataset.id,i.value);all(true)});
+function updateBar(){const g=$("#barGo");const n=tot().L.length;
+  g.textContent=n?"Ver cotización":"Elegir equipo";g.href=n?"#resumen":"#s2"}
+for(const target of [$('#sumItems'),$('#suggestions')]){
+ target.addEventListener('click',e=>{const b=e.target.closest('[data-sd]');if(!b)return;const id=b.closest('[data-id]').dataset.id;setQ(id,(S.q[id]||0)+ +b.dataset.sd);all(true)});
+ target.addEventListener('change',e=>{const i=e.target.closest('.qt input');if(!i)return;setQ(i.closest('[data-id]').dataset.id,i.value);all(true)});
+}
 
 /* datos */
 const CF=["nombre","empresa","tel","email","proyecto","ubic","inicio","nit","coment"],CB=["flete","montaje"];
@@ -111,8 +108,8 @@ function message(){
   L.push("*Solicitud de cotización · COTYSSA*");
   L.push("Período: "+perTxt());L.push("");
   t.L.forEach(l=>L.push(`• ${l.c} × ${l.p.n}${l.p.c?" ("+l.p.c+")":""} — ${l.no?"no se renta por "+PER[S.per]+" ("+solo(l.p).toLowerCase()+")":l.t==null?"precio por confirmar":fmt(l.t)}`));
-  freightRows(t.flete).forEach(row=>L.push(`• ${row.quantity??"Por confirmar"} × ${row.name} — ${row.unit==null?"precio por confirmar":fmt(row.unit)+" c/u · "+fmt(row.total)+" total (IVA incluido)"}${row.total==null?" · precio pendiente, no sumado al total":!t.flete.complete?" · precio preliminar incluido en el total":""}`));
-  L.push("");L.push("*Total referencial: "+fmt(t.s)+"* (IVA incluido)");if(t.flete.requested){L.push("Renta de equipo: "+fmt(t.rental));L.push(freightText(t.flete));L.push(window.COTYSSA_FLETE.disclaimer)}
+  freightRows(t.flete).forEach(row=>L.push(`• ${row.quantity??"Por confirmar"} × ${row.name} — ${row.unit==null?"precio por confirmar":fmt(row.unit)+" c/u · "+fmt(row.total)+" total (IVA incluido)"}${row.total==null?" · precio pendiente, no sumado al total":""}`));
+  L.push("");L.push("*Total referencial: "+fmt(t.s)+"* (IVA incluido)");if(t.flete.requested){L.push(freightNotes(t.flete));L.push(window.COTYSSA_FLETE.disclaimer)}
   if(t.nd)L.push(t.nd+" pieza(s) no se rentan por "+PER[S.per]+".");
   if(t.pend)L.push(t.pend+" pieza(s) con precio por confirmar.");
   L.push("Flete: "+(c.flete?"Sí, requiero":"No")+" · Montaje: "+(c.montaje?"Sí, requiero":"No"));
@@ -202,13 +199,13 @@ function buildPdf(){
   if(y+40>278){doc.addPage();y=head(false)+12}
   y+=2;const tx=118;
   doc.setDrawColor(...ink);doc.setLineWidth(.5);doc.line(tx,y,R,y);y+=7;
-  doc.setFont("helvetica","bold");doc.setFontSize(12.5);col(ink);doc.text("Total referencial",tx,y);col(or7);doc.text(fmt(t.s),R,y,{align:"right"});
+  doc.setFont("helvetica","bold");doc.setFontSize(12.5);col(ink);doc.text("Total preliminar",tx,y);col(or7);doc.text(fmt(t.s),R,y,{align:"right"});
   y+=5.5;doc.setFont("helvetica","normal");doc.setFontSize(8.5);col(mute);doc.text("IVA incluido (12%)",tx,y);doc.text(fmt(t.iva),R,y,{align:"right"});
   if(t.nd){y+=4.6;col(or7);doc.text(t.nd+(t.nd>1?" piezas no se rentan":" pieza no se renta")+" por "+PER[S.per],tx,y)}
   if(t.pend){y+=4.6;col(or7);doc.text(t.pend+(t.pend>1?" piezas":" pieza")+" con precio por confirmar",tx,y)}
   y+=10;
   if(t.flete.requested){
-    const detail=["Renta de equipo: "+fmt(t.rental),freightText(t.flete),window.COTYSSA_FLETE.disclaimer];
+    const detail=[freightNotes(t.flete),window.COTYSSA_FLETE.disclaimer].filter(Boolean);
     doc.setFont("helvetica","normal");doc.setFontSize(8.3);col(mute);
     detail.forEach(n=>{const ls=doc.splitTextToSize(L1(n),R-M);if(y+ls.length*3.8>278){doc.addPage();y=head(false)+10}doc.text(ls,M,y);y+=ls.length*3.8+3});
   }
@@ -259,4 +256,5 @@ dlg.addEventListener("click",e=>{if(e.target===dlg)dlg.close()});
 function toast(m){const t=document.createElement("div");t.className="toast";t.setAttribute("role","status");t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2800)}
 function all(keepList){renderPer();renderSys();if(keepList){const y=window.scrollY;renderList();window.scrollTo(0,y)}else renderList();renderSum();save()}
 all();
+if(window.IntersectionObserver)new IntersectionObserver(entries=>{$("#bar").hidden=entries[0].isIntersecting},{threshold:0}).observe($("#resumen"));
 })();
