@@ -321,3 +321,9 @@ footer{padding-bottom:110px;font-size:14px}
  footer{font-size:var(--desktop-small)}
 }
 @media(min-width:1600px){.builder>#datos>.fg{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* Datos obligatorios: errores junto a cada campo. */
+.field-error{color:#ffab98;font-size:14px;line-height:1.4}
+.validation-summary{border-left:3px solid #F26522;background:#321a12;padding:14px 16px;color:#fff;font-size:16px;line-height:1.5}
+.f input[aria-invalid="true"]{border:2px solid #F08A75}
+@media(min-width:1000px){.field-error,.validation-summary{font-size:var(--desktop-small)}}

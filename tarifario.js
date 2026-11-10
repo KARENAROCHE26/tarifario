@@ -99,7 +99,8 @@ for(const target of [$('#sumItems'),$('#suggestions')]){
 
 /* datos */
 const CF=["nombre","empresa","tel","email","proyecto","ubic","inicio","nit","coment"],CB=["flete","montaje"];
-CF.forEach(k=>{const el=$("#c_"+k);el.value=S.c[k]||"";el.addEventListener("input",()=>{S.c[k]=el.value;el.removeAttribute("aria-invalid");updateLinks();updateBar();if(k==="ubic")renderSum();save()})});
+const REQUIRED_FIELDS={nombre:"Nombre",empresa:"Empresa",tel:"Teléfono o WhatsApp",ubic:"Ubicación de la obra",email:"Correo",proyecto:"Proyecto",inicio:"Fecha estimada de inicio",nit:"NIT para facturar"};
+CF.forEach(k=>{const el=$("#c_"+k);el.value=S.c[k]||"";S.c[k]=el.value;el.addEventListener("input",()=>{S.c[k]=el.value;el.removeAttribute("aria-invalid");const err=$("#error_"+k);if(err)err.hidden=true;$("#clientValidation").hidden=true;updateLinks();updateBar();if(k==="ubic")renderSum();save()})});
 CB.forEach(k=>{const el=$("#c_"+k);el.checked=!!S.c[k];el.addEventListener("change",()=>{S.c[k]=el.checked;renderSum();save()})});
 
 /* mensaje */
@@ -123,10 +124,15 @@ function updateLinks(){try{setLinks()}catch(e){}}
 function check(){
   const t=tot();const bad=[];
   if(!t.L.length){toast("Agregue al menos un equipo a su lista.");document.getElementById("s2").scrollIntoView({behavior:"smooth"});return false}
-  if(!(S.c.nombre||"").trim())bad.push("nombre");
-  if(!(S.c.tel||"").trim())bad.push("tel");
-  if(bad.length){bad.forEach(k=>$("#c_"+k).setAttribute("aria-invalid","true"));$("#sendMsg").className="msg err";$("#sendMsg").textContent="Escriba su nombre y un teléfono para que el asesor pueda contactarle.";$("#c_"+bad[0]).focus();$("#datos").scrollIntoView({behavior:"smooth"});return false}
-  $("#sendMsg").className="msg";return true}
+  for(const [key,label] of Object.entries(REQUIRED_FIELDS)){
+    const el=$("#c_"+key),err=$("#error_"+key);const value=el.value.trim();
+    const problem=!value?"Complete este campo obligatorio.":!el.validity.valid?(key==="email"?"Ingrese un correo válido.":key==="inicio"?"Seleccione una fecha válida.":"Revise este dato."):"";
+    el.setAttribute("aria-invalid",problem?"true":"false");err.hidden=!problem;err.textContent=problem;
+    if(problem)bad.push({key,label});else S.c[key]=value;
+  }
+  const notice=$("#clientValidation");notice.hidden=!bad.length;
+  if(bad.length){const msg="Complete o corrija los datos obligatorios: "+bad.map(x=>x.label).join(", ")+".";notice.textContent=msg;$("#sendMsg").className="msg err";$("#sendMsg").textContent="No se generó el PDF. "+msg;const first=$("#c_"+bad[0].key);first.focus({preventScroll:true});first.scrollIntoView({behavior:"smooth",block:"center"});return false}
+  save();$("#sendMsg").className="msg";return true}
 
 $("#bCopy").addEventListener("click",async()=>{if(!tot().L.length){toast("Su lista está vacía.");return}
   const m=plain(message());

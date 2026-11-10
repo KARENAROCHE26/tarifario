@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@500;600&display=swap">
-<link rel="stylesheet" href="tarifario.css?v=escritorio-amplio-20261110-3">
+<link rel="stylesheet" href="tarifario.css?v=datos-obligatorios-20261110">
 </head>
 <body>
 <header class="top"><div class="wrap">
@@ -51,16 +51,18 @@
 
       <section class="step" aria-labelledby="s3" id="datos">
         <div class="sh"><b>03</b><h2 id="s3">Datos y servicios</h2></div>
+        <p class="msg">Complete los ocho datos obligatorios (*) para generar su PDF.</p>
+        <p id="clientValidation" class="validation-summary" role="alert" hidden></p>
         <div class="fg">
-          <label class="f"><span>Nombre <i>*</i></span><input type="text" id="c_nombre" autocomplete="name"></label>
-          <label class="f"><span>Empresa</span><input type="text" id="c_empresa" autocomplete="organization"></label>
-          <label class="f"><span>Teléfono o WhatsApp <i>*</i></span><input type="tel" id="c_tel" autocomplete="tel" inputmode="tel"></label>
-          <label class="f"><span>Ubicación de la obra</span><input type="text" id="c_ubic"></label>
-          <details class="f w more"><summary>Más datos (opcional) · correo, proyecto, fecha, NIT</summary><div class="fg" style="margin-top:12px">
-          <label class="f"><span>Correo</span><input type="email" id="c_email" autocomplete="email"></label>
-          <label class="f"><span>Proyecto</span><input type="text" id="c_proyecto"></label>
-          <label class="f"><span>Fecha estimada de inicio</span><input type="text" id="c_inicio" placeholder="Ej. 15 de noviembre"></label>
-          <label class="f"><span>NIT para facturar</span><input type="text" id="c_nit"></label></div></details>
+          <label class="f"><span>Nombre <i>*</i></span><input type="text" id="c_nombre" autocomplete="name" required aria-describedby="error_nombre"><small class="field-error" id="error_nombre" hidden></small></label>
+          <label class="f"><span>Empresa <i>*</i></span><input type="text" id="c_empresa" autocomplete="organization" required aria-describedby="error_empresa"><small class="field-error" id="error_empresa" hidden></small></label>
+          <label class="f"><span>Teléfono o WhatsApp <i>*</i></span><input type="tel" id="c_tel" autocomplete="tel" inputmode="tel" required aria-describedby="error_tel"><small class="field-error" id="error_tel" hidden></small></label>
+          <label class="f"><span>Ubicación de la obra <i>*</i></span><input type="text" id="c_ubic" required aria-describedby="error_ubic"><small class="field-error" id="error_ubic" hidden></small></label>
+          
+          <label class="f"><span>Correo <i>*</i></span><input type="email" id="c_email" autocomplete="email" required aria-describedby="error_email"><small class="field-error" id="error_email" hidden></small></label>
+          <label class="f"><span>Proyecto <i>*</i></span><input type="text" id="c_proyecto" required aria-describedby="error_proyecto"><small class="field-error" id="error_proyecto" hidden></small></label>
+          <label class="f"><span>Fecha estimada de inicio <i>*</i></span><input type="date" id="c_inicio" required aria-describedby="error_inicio"><small class="field-error" id="error_inicio" hidden></small></label>
+          <label class="f"><span>NIT para facturar <i>*</i></span><input type="text" id="c_nit" placeholder="NIT o C/F" required aria-describedby="error_nit"><small class="field-error" id="error_nit" hidden></small></label>
           <div class="f w"><span>Servicios adicionales</span>
             <div class="yn"><label class="chk"><input type="checkbox" id="c_flete"> Incluir transporte</label><label class="chk"><input type="checkbox" id="c_montaje"> Montaje y desmontaje</label></div></div>
           <div class="f w freight-box" id="fleteFields" hidden>
@@ -115,6 +117,6 @@
 <script src="fletes/capacidad.js"></script>
 <script src="fletes/datos.js"></script>
 <script src="fletes/calculo.js?v=detalle-fletes-preliminar-20261110"></script>
-<script src="tarifario.js?v=escritorio-amplio-20261110-2"></script>
+<script src="tarifario.js?v=datos-obligatorios-20261110"></script>
 </body>
 </html>
